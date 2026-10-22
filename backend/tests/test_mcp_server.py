@@ -6,12 +6,6 @@ over Streamable HTTP, exactly as a host such as Alexa+ or Claude would.
 """
 
 import asyncio
-import socket
-import subprocess
-import sys
-import time
-import urllib.request
-from pathlib import Path
 
 import pytest
 from mcp import Client
@@ -20,8 +14,8 @@ from houseledger.db import connect
 from houseledger.ledger import Ledger
 from houseledger.mcp_server import build_server
 from houseledger.seed import seed
+from tests.helpers import running_mcp_server
 
-BACKEND = Path(__file__).resolve().parent.parent
 EXPECTED_TOOLS = {
     "list_household_members", "preview_split", "add_expense", "edit_expense", "undo_last",
     "record_payment", "get_balances", "settle_up_plan", "list_expenses", "monthly_summary",
@@ -143,29 +137,8 @@ def test_members_tool(tmp_path):
 
 @pytest.fixture(scope="module")
 def http_server(tmp_path_factory):
-    """Start the real server process on a free port with a seeded temporary database."""
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0))
-        port = s.getsockname()[1]
-    db = tmp_path_factory.mktemp("http") / "ledger.db"
-    proc = subprocess.Popen(
-        [sys.executable, "-m", "houseledger.mcp_server", "--port", str(port), "--db", str(db), "--seed"],
-        cwd=BACKEND, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-    )
-    base = f"http://127.0.0.1:{port}"
-    try:
-        for _ in range(100):
-            try:
-                urllib.request.urlopen(base + "/health", timeout=1)
-                break
-            except OSError:
-                time.sleep(0.1)
-        else:
-            pytest.fail("MCP server did not start")
-        yield base + "/mcp"
-    finally:
-        proc.terminate()
-        proc.wait(timeout=10)
+    with running_mcp_server(tmp_path_factory.mktemp("http") / "ledger.db") as url:
+        yield url
 
 
 def test_streamable_http_with_2025_11_25_handshake(http_server):

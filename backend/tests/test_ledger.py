@@ -5,7 +5,7 @@ import pytest
 from houseledger.db import connect
 from houseledger.ledger import Ledger
 from houseledger.models import NotFoundError, Transfer, ValidationError
-from houseledger.seed import seed
+from houseledger.seed import create_household, seed
 from houseledger.splits import SplitSpec
 
 ALL = ["Aarav", "Priya", "Sam"]
@@ -209,6 +209,15 @@ def test_seed_is_idempotent_and_balanced(tmp_path):
     assert len(ledger.list_payments()) == 1
     assert sum(ledger.balances().values()) == 0
     assert ledger.household_name().endswith("(seeded demo data)")
+
+
+def test_empty_household_has_members_but_no_history(tmp_path):
+    ledger = Ledger(connect(tmp_path / "ledger.db"))
+    create_household(ledger)
+    assert [m.name for m in ledger.members()] == ALL
+    assert ledger.list_expenses() == [] and ledger.list_payments() == []
+    assert ledger.balances() == {"Aarav": 0, "Priya": 0, "Sam": 0}
+    assert ledger.settle_up_plan() == []
 
 
 def test_duplicate_member_name(ledger):

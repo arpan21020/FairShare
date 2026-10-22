@@ -1,7 +1,7 @@
 """HouseLedger MCP server (Streamable HTTP).
 
-Run:   uv run python -m houseledger.mcp_server [--host 127.0.0.1] [--port 8000] [--db PATH] [--seed]
-URL:   http://127.0.0.1:8000/mcp     Health: http://127.0.0.1:8000/health
+Run:   uv run python -m houseledger.mcp_server [--host 127.0.0.1] [--port 8010] [--db PATH] [--seed]
+URL:   http://127.0.0.1:8010/mcp     Health: http://127.0.0.1:8010/health
 
 Built on the official MCP Python SDK. Clients may negotiate MCP spec 2025-11-25 (the
 initialize handshake) or 2026-07-28.
@@ -39,6 +39,8 @@ HouseLedger keeps a household's shared expenses. You are the household's voice a
 
 - `actor` is always the household member who is speaking. Ask who is speaking if you don't know.
 - Never calculate amounts, shares or balances yourself. Every number you say must come from a tool result.
+  Describe splits the way the speaker did (who shares, and weights such as 0.5 for half a share)
+  and let the tools work out the rupees.
 - Before saving an expense whose split is anything other than an obvious equal split, call
   `preview_split`, read the split back, and call `add_expense` only after the speaker confirms.
 - If the amount, the payer, who shares the cost, or how to split it is unclear, ask one short
@@ -71,8 +73,11 @@ class SplitInput(BaseModel):
 
     method: Literal["equal", "weights", "percent", "exact"] = Field(
         default="equal",
-        description="equal: use `participants`. weights: relative shares, e.g. {'Sam': 0.5} for half a share. "
-        "percent: percentages adding up to 100. exact: rupee amounts adding up to the bill.",
+        description="equal: use `participants`. "
+        "weights: relative shares; use this when someone should pay part of a share, e.g. "
+        "'Sam was away half the week' -> {'Aarav': 1, 'Priya': 1, 'Sam': 0.5}. "
+        "percent: percentages the speaker stated, adding up to 100. "
+        "exact: ONLY when the speaker states each person's rupee amount. Never work out amounts yourself.",
     )
     participants: list[str] = Field(
         default_factory=list, description="For 'equal': everyone sharing the cost, including the payer if they share."
@@ -154,7 +159,7 @@ def build_server(ledger: Ledger) -> MCPServer:
         request_id: Annotated[str | None, REQUEST_ID] = None,
     ) -> Result:
         """Save a shared expense. For anything but an obvious equal split, call preview_split first and get
-        the speaker's confirmation."""
+        the speaker's confirmation. Always set the closest category (e.g. groceries, food, utilities)."""
         def go():
             expense = ledger.add_expense(
                 actor=actor, payer=payer or actor, total_paise=rupees_to_paise(str(amount_rupees)),
@@ -256,7 +261,7 @@ def build_server(ledger: Ledger) -> MCPServer:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the HouseLedger MCP server over Streamable HTTP.")
     parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--port", type=int, default=8010)
     parser.add_argument("--db", type=Path, default=db_path_from_env())
     parser.add_argument("--seed", action="store_true", help="add the demo household if it isn't there yet")
     args = parser.parse_args()

@@ -14,8 +14,8 @@ cd backend
 uv run python -m houseledger.mcp_server --seed
 ```
 
-- MCP endpoint (Streamable HTTP): `http://127.0.0.1:8000/mcp`
-- Health check: `http://127.0.0.1:8000/health`
+- MCP endpoint (Streamable HTTP): `http://127.0.0.1:8010/mcp`
+- Health check: `http://127.0.0.1:8010/health`
 - Protocol: MCP spec **2025-11-25** (initialize handshake) and 2026-07-28, via the official MCP Python SDK.
 - `--seed` adds a demo household (Aarav, Priya, Sam) with **seeded, fictional** expenses.
 
@@ -36,6 +36,28 @@ uv run python -m houseledger.mcp_server --seed
 
 Every tool returns a short spoken reply as text, plus structured content `{speech, data, display}`.
 All money is calculated in integer paise by the server; the assistant never does the arithmetic.
+
+## Run the simulated Alexa+ device
+
+Alexa+ integration isn't available to hackathon participants, so an Echo Show-style simulator
+stands in for it. It is a real MCP host: it calls the server above over Streamable HTTP.
+
+```bash
+# terminal 1 — MCP server (above)
+cd backend && uv run python -m houseledger.mcp_server --seed
+
+# terminal 2 — orchestrator (the "Alexa" brain), http://127.0.0.1:8001
+cd backend && uv run python -m orchestrator.app
+
+# terminal 3 — screen, http://localhost:5173
+cd simulator && npm install && npm run dev
+```
+
+- **Live mode:** an LLM (any OpenAI-compatible endpoint; NVIDIA by default) plays Alexa and decides
+  which tools to call. Put `NVIDIA_API_KEY=...` in `.env` (see `.env.example`).
+- **Scripted mode:** no key needed — replays the demo conversation through the same MCP tools.
+- Alternatively run `npm run build` in `simulator/`; the orchestrator then serves the screen itself at
+  http://127.0.0.1:8001.
 
 ## Tests
 

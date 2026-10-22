@@ -1,6 +1,10 @@
-"""Create the demo household with a few weeks of SEEDED (fictional) expenses.
+"""Create the demo household (Aarav, Priya, Sam), optionally with a few weeks of SEEDED
+(fictional) expenses.
 
-Usage:  uv run python -m houseledger.seed [--reset] [--db PATH]
+Usage:  uv run python -m houseledger.seed [--reset] [--empty] [--db PATH]
+
+  --reset   delete the database first
+  --empty   members only: no expenses or payments, so every balance starts at zero
 
 Re-running is safe: every seeded entry has a fixed request_id, so nothing is duplicated.
 """
@@ -16,16 +20,22 @@ from .money import format_inr
 from .splits import ExclusiveItem, SplitSpec
 
 HOUSEHOLD_NAME = "Demo flat (seeded demo data)"
+EMPTY_HOUSEHOLD_NAME = "Demo flat"
 MEMBERS = ("Aarav", "Priya", "Sam")
 ALL = list(MEMBERS)
 
 
-def seed(ledger: Ledger) -> None:
-    ledger.set_household_name(HOUSEHOLD_NAME)
+def create_household(ledger: Ledger, name: str = EMPTY_HOUSEHOLD_NAME) -> None:
+    """Name the household and add the members, with no expenses or payments."""
+    ledger.set_household_name(name)
     existing = {m.name for m in ledger.members()}
-    for name in MEMBERS:
-        if name not in existing:
-            ledger.add_member(name)
+    for member in MEMBERS:
+        if member not in existing:
+            ledger.add_member(member)
+
+
+def seed(ledger: Ledger) -> None:
+    create_household(ledger, HOUSEHOLD_NAME)
 
     expenses = [
         ("seed-rent-oct", "Aarav", 45_000_00, "October rent", "rent", "2026-10-01", SplitSpec(participants=ALL)),
@@ -55,17 +65,21 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--db", type=Path, default=db_path_from_env())
     parser.add_argument("--reset", action="store_true", help="delete the database first")
+    parser.add_argument("--empty", action="store_true", help="members only, no expenses or payments")
     args = parser.parse_args()
 
     if args.reset and args.db.exists():
-        args.db.unlink()
+        try:
+            args.db.unlink()
+        except PermissionError:
+            raise SystemExit("The database is in use. Stop the MCP server first, then run this again.")
     ledger = Ledger(connect(args.db))
     try:
-        seed(ledger)
+        create_household(ledger) if args.empty else seed(ledger)
     except ValidationError as err:
         raise SystemExit(f"Seeding failed: {err}")
     sys.stdout.reconfigure(encoding="utf-8")  # the Windows console defaults to cp1252, which lacks ₹
-    print(f"Seeded {HOUSEHOLD_NAME} into {args.db}")
+    print(f"Created {ledger.household_name()} in {args.db}")
     for name, paise in ledger.balances().items():
         print(f"  {name:6} {format_inr(paise):>12}")
 
