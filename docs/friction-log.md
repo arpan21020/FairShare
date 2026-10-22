@@ -25,3 +25,21 @@ submission. Each entry: what happened, impact, workaround, suggestion.
 - **Impact:** We built our own Echo Show-style simulator to show the experience.
 - **Suggestion:** A public, limited Alexa+ MCP test harness would let entrants validate
   tool descriptions and response shapes against the real assistant.
+
+## 2026-10-22 — Two protocol "eras" in the MCP SDK; the default client skips 2025-11-25
+- **What:** SDK 2.3.0 speaks the handshake-era protocol (`initialize`, up to 2025-11-25) and the
+  new per-request protocol (2026-07-28). `Client(url)` defaults to `mode="auto"`, which picks
+  2026-07-28. To prove our server meets the hackathon's 2025-11-25 requirement we had to know to
+  pass `mode="legacy"`.
+- **Impact:** Easy to ship a server that was only ever tested on the newest protocol.
+- **Workaround:** Our protocol test runs over Streamable HTTP in both modes and asserts the
+  negotiated version (`2025-11-25` and `2026-07-28`).
+- **Suggestion:** Document which spec version Alexa+ will negotiate, and include a
+  "test against 2025-11-25" snippet in the starter template.
+
+## 2026-10-22 — Tool error text is prefixed for the model
+- **What:** Raising `ToolError("I don't know anyone called Raj…")` reaches the client as
+  `Error executing tool add_expense: I don't know anyone called Raj…`.
+- **Impact:** For a voice assistant the error text is nearly speakable but carries a technical
+  prefix the host must strip or the LLM must rephrase.
+- **Suggestion:** An option to return the message verbatim.
