@@ -5,9 +5,36 @@ Shared household expenses, settled by voice — a self-hosted MCP server for Ale
 > Work in progress for the Build, Ship, Shape: Amazon Developer Hackathon 2026 (Alexa+ track).
 > The full README (architecture, demo, simulator) is coming.
 
-## Run the MCP server
+## Prerequisites
 
-Requires [uv](https://docs.astral.sh/uv/).
+- [uv](https://docs.astral.sh/uv/) (installs Python 3.12+ and the backend packages automatically)
+- [Node.js](https://nodejs.org/) 20.19+ or 22.12+ with npm (for the simulator screen)
+- Optional, for live mode: a free [NVIDIA API key](https://build.nvidia.com/) or any OpenAI-compatible LLM endpoint
+
+## Quick start (from a fresh clone)
+
+```bash
+git clone https://github.com/arpan21020/FairShare.git
+cd FairShare
+
+# 1. Optional: enable live (LLM) mode — copy the example and add your key
+cp .env.example .env            # Windows PowerShell: Copy-Item .env.example .env
+
+# 2. Create the demo household (Aarav, Priya, Sam) with seeded, fictional expenses
+cd backend
+uv run python -m houseledger.seed --reset          # or add --empty for zero balances
+
+# 3. Start the MCP server (leave running)  ->  http://127.0.0.1:8010/mcp
+uv run python -m houseledger.mcp_server
+
+# 4. In a second terminal: build the screen, then start the orchestrator  ->  http://127.0.0.1:8001
+cd simulator && npm install && npm run build && cd ..
+cd backend && uv run python -m orchestrator.app
+```
+
+Open **http://127.0.0.1:8001**. Without an API key, use **Scripted** mode.
+
+## Run the MCP server
 
 ```bash
 cd backend
@@ -65,3 +92,7 @@ cd simulator && npm install && npm run dev
 cd backend
 uv run pytest -q
 ```
+
+## License
+
+[MIT](LICENSE)
