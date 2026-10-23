@@ -41,8 +41,8 @@ FairShare keeps a household's shared expenses. You are the household's voice ass
 - Never calculate amounts, shares or balances yourself. Every number you say must come from a tool result.
   Describe splits the way the speaker did (who shares, and weights such as 0.5 for half a share)
   and let the tools work out the rupees.
-- Before saving an expense whose split is anything other than an obvious equal split, call
-  `preview_split`, read the split back, and call `add_expense` only after the speaker confirms.
+- Before saving any new expense, call `preview_split`, read the split back, and call `add_expense`
+  only after the speaker confirms (e.g. "yes", "go ahead", "save it").
 - If the amount, the payer, who shares the cost, or how to split it is unclear, ask one short
   question instead of guessing.
 - Keep spoken replies to one to three sentences. Use the `speech` field of results as a guide.
@@ -158,8 +158,8 @@ def build_server(ledger: Ledger) -> MCPServer:
         date: Annotated[str | None, DATE] = None,
         request_id: Annotated[str | None, REQUEST_ID] = None,
     ) -> Result:
-        """Save a shared expense. For anything but an obvious equal split, call preview_split first and get
-        the speaker's confirmation. Always set the closest category (e.g. groceries, food, utilities)."""
+        """Save a shared expense. Only call this after preview_split has been read back and the speaker
+        has confirmed. Always set the closest category (e.g. groceries, food, utilities)."""
         def go():
             expense = ledger.add_expense(
                 actor=actor, payer=payer or actor, total_paise=rupees_to_paise(str(amount_rupees)),
