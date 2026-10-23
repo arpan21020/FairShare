@@ -159,6 +159,13 @@ def test_streamable_http_with_2025_11_25_handshake(http_server):
     assert sum(t["amount"]["paise"] for t in transfers) > 0
 
 
+def test_fresh_database_starts_with_predefined_members_and_no_history(tmp_path):
+    with running_mcp_server(tmp_path / "fresh.db", seed=False) as url:
+        _, [members, balances] = call_all(url, [("list_household_members", {}), ("get_balances", {})])
+    assert members.structured_content["data"]["members"] == ["Aarav", "Priya", "Sam"]
+    assert balances.structured_content["speech"] == "Everyone is settled up."
+
+
 def test_streamable_http_lists_tools_on_newest_protocol(http_server):
     async def go():
         async with Client(http_server) as client:  # mode="auto": newest version both sides support

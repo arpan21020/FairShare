@@ -10,16 +10,18 @@ BACKEND = Path(__file__).resolve().parent.parent
 
 
 @contextmanager
-def running_mcp_server(db: Path):
-    """Start the real HouseLedger MCP server process on a free port with a seeded database.
+def running_mcp_server(db: Path, seed: bool = True):
+    """Start the real HouseLedger MCP server process on a free port.
 
-    Yields the MCP URL (http://127.0.0.1:<port>/mcp) and stops the server afterwards.
+    With seed=True the database gets the sample expenses; otherwise only the predefined
+    members. Yields the MCP URL (http://127.0.0.1:<port>/mcp) and stops the server afterwards.
     """
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
         port = s.getsockname()[1]
     proc = subprocess.Popen(
-        [sys.executable, "-m", "houseledger.mcp_server", "--port", str(port), "--db", str(db), "--seed"],
+        [sys.executable, "-m", "houseledger.mcp_server", "--port", str(port), "--db", str(db),
+         *(["--seed"] if seed else [])],
         cwd=BACKEND, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     base = f"http://127.0.0.1:{port}"

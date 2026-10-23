@@ -31,7 +31,7 @@ from .ledger import Ledger
 from .models import CATEGORIES, LedgerError
 from .money import rupees_to_paise
 from .presenters import ToolOutput
-from .seed import seed
+from .seed import create_household, seed
 from .splits import ExclusiveItem, SplitSpec
 
 INSTRUCTIONS = """\
@@ -263,13 +263,16 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8010)
     parser.add_argument("--db", type=Path, default=db_path_from_env())
-    parser.add_argument("--seed", action="store_true", help="add the demo household if it isn't there yet")
+    parser.add_argument("--seed", action="store_true", help="also add seeded, fictional sample expenses")
     args = parser.parse_args()
 
     # Local time, so "today" matches the household's calendar.
     ledger = Ledger(connect(args.db), now=lambda: datetime.now().astimezone())
     if args.seed:
         seed(ledger)
+    elif not ledger.members():
+        # Household members are predefined, as Alexa+ household profiles would be.
+        create_household(ledger)
     build_server(ledger).run("streamable-http", host=args.host, port=args.port)
 
 
