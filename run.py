@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start HouseLedger: the MCP server, the simulated Alexa+ orchestrator, and the screen.
+"""Start FairShare: the MCP server, the simulated Alexa+ orchestrator, and the screen.
 
 Usage (from the project root, on Windows, macOS or Linux):
 
@@ -36,7 +36,7 @@ VENV_PYTHON = BACKEND / ".venv" / ("Scripts/python.exe" if IS_WINDOWS else "bin/
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Start the HouseLedger demo.")
+    parser = argparse.ArgumentParser(description="Start the FairShare demo.")
     parser.add_argument("--seed", action="store_true", help="add seeded, fictional sample expenses")
     parser.add_argument("--reset", action="store_true", help="wipe the ledger before starting")
     parser.add_argument("--build", action="store_true", help="force a rebuild of the screen")
@@ -91,7 +91,7 @@ def main() -> int:
         orchestrator.wait_until_ready(f"http://127.0.0.1:{args.port}/api/config")
 
         url = f"http://127.0.0.1:{args.port}"
-        print(f"\n  HouseLedger is running:\n"
+        print(f"\n  FairShare is running:\n"
               f"    Simulator (UI):   {url}\n"
               f"    MCP endpoint:     http://127.0.0.1:{args.mcp_port}/mcp\n"
               f"  Press Ctrl+C to stop.\n", flush=True)

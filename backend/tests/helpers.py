@@ -11,7 +11,7 @@ BACKEND = Path(__file__).resolve().parent.parent
 
 @contextmanager
 def running_mcp_server(db: Path, seed: bool = True):
-    """Start the real HouseLedger MCP server process on a free port.
+    """Start the real FairShare MCP server process on a free port.
 
     With seed=True the database gets the sample expenses; otherwise only the predefined
     members. Yields the MCP URL (http://127.0.0.1:<port>/mcp) and stops the server afterwards.

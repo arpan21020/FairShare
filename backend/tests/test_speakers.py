@@ -2,20 +2,20 @@ import pytest
 
 from orchestrator.speakers import identify_speaker
 
-MEMBERS = ["Aarav", "Priya", "Sam"]
+MEMBERS = ["Rahul", "Priya", "Neha"]
 
 
 @pytest.mark.parametrize(
     ("utterance", "speaker"),
     [
-        ("This is Priya. I paid Aarav back ₹500.", "Priya"),
-        ("Alexa, this is sam, who owes what?", "Sam"),
-        ("Hey Alexa, it's Aarav. Split the pizza.", "Aarav"),
+        ("This is Priya. I paid Rahul back ₹500.", "Priya"),
+        ("Alexa, this is neha, who owes what?", "Neha"),
+        ("Hey Alexa, it's Rahul. Split the pizza.", "Rahul"),
         ("I'm Priya and I bought milk for ₹60", "Priya"),
-        ("I am Sam", "Sam"),
-        ("My name is Aarav", "Aarav"),
+        ("I am Neha", "Neha"),
+        ("My name is Rahul", "Rahul"),
         ("Priya here, settle up please", "Priya"),
-        ("Sam.", "Sam"),  # answering "Who's speaking?"
+        ("Neha.", "Neha"),  # answering "Who's speaking?"
         (" priya ", "Priya"),
     ],
 )
@@ -26,10 +26,10 @@ def test_identifies_self_introductions(utterance, speaker):
 @pytest.mark.parametrize(
     "utterance",
     [
-        "It's ₹900, just me and Sam.",  # mentions Sam, but Sam isn't introducing themselves
+        "It's ₹900, just me and Neha.",  # mentions Neha, but Neha isn't introducing themselves
         "This is the pizza bill",
         "I'm paying Priya back",
-        "Split it with Priya and Sam",
+        "Split it with Priya and Neha",
         "This is Raj",  # not a household member
         "Who owes what?",
     ],

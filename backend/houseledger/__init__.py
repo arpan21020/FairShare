@@ -1,1 +1,1 @@
-"""HouseLedger: shared household expenses, settled by voice."""
+"""FairShare: shared household expenses, settled by voice."""

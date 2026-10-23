@@ -6,7 +6,7 @@ A split has two parts:
    ("only I had the wine, ₹600"). Each item is divided equally among its members.
 2. The *main split* of whatever remains, using one method:
    - equal:   divide equally among `participants`
-   - weights: divide in proportion to `weights` (e.g. Sam = 0.5 for half a share)
+   - weights: divide in proportion to `weights` (e.g. Neha = 0.5 for half a share)
    - percent: divide by `percent`, which must add up to exactly 100
    - exact:   fixed amounts in `exact_paise`, which must add up to the remainder
 

@@ -2,7 +2,7 @@
 
 On a real Echo, Alexa+ voice ID recognises household members by their voice. The simulator
 stands in for that with a "Voice ID (simulated)" selector, and people can also simply say
-who they are: "This is Priya…", "It's Sam", "I'm Aarav", "Priya here", or just "Priya" when
+who they are: "This is Priya…", "It's Neha", "I'm Rahul", "Priya here", or just "Priya" when
 Alexa asks who's speaking.
 """
 

@@ -1,7 +1,7 @@
 """Scripted mode: replays a fixed demo conversation through the real MCP server, no LLM needed.
 
 Each scripted line maps to fixed tool calls. The replies come from the tools' `speech`, so
-every number is still calculated by HouseLedger. Request ids are scoped to the conversation,
+every number is still calculated by FairShare. Request ids are scoped to the conversation,
 so replaying a line never saves twice.
 """
 
@@ -18,7 +18,7 @@ from .turns import TurnResult
 
 logger = logging.getLogger(__name__)
 
-SAM_HALF = {"method": "weights", "weights": {"Aarav": 1, "Priya": 1, "Sam": 0.5}}
+SAM_HALF = {"method": "weights", "weights": {"Rahul": 1, "Priya": 1, "Neha": 0.5}}
 
 
 @dataclass
@@ -32,23 +32,23 @@ class Step:
 def demo_script() -> list[Step]:
     month = date.today().isoformat()[:7]
     return [
-        Step("Aarav", "I paid ₹2,400 for groceries. Split it with Priya and Sam, but Sam was away half the week.",
-             [("preview_split", {"actor": "Aarav", "amount_rupees": 2400, "description": "groceries",
+        Step("Rahul", "I paid ₹2,400 for groceries. Split it with Priya and Neha, but Neha was away half the week.",
+             [("preview_split", {"actor": "Rahul", "amount_rupees": 2400, "description": "groceries",
                                  "split": SAM_HALF})]),
-        Step("Aarav", "Yes, save it.",
-             [("add_expense", {"actor": "Aarav", "amount_rupees": 2400, "description": "Groceries",
+        Step("Rahul", "Yes, save it.",
+             [("add_expense", {"actor": "Rahul", "amount_rupees": 2400, "description": "Groceries",
                                "category": "groceries", "split": SAM_HALF, "request_id": "{cid}-groceries"})]),
         Step("Priya", "Split the pizza.", reply="Sure. How much was the pizza, and who shared it?"),
-        Step("Priya", "It was ₹900, just me and Sam.",
+        Step("Priya", "It was ₹900, just me and Neha.",
              [("add_expense", {"actor": "Priya", "amount_rupees": 900, "description": "Pizza", "category": "food",
-                               "split": {"participants": ["Priya", "Sam"]}, "request_id": "{cid}-pizza"})]),
+                               "split": {"participants": ["Priya", "Neha"]}, "request_id": "{cid}-pizza"})]),
         Step("Priya", "Oops, that was the wrong amount. Undo that.", [("undo_last", {"actor": "Priya"})]),
         Step("Priya", "Who owes what?", [("get_balances", {})]),
-        Step("Priya", "I paid Aarav back ₹500.",
-             [("record_payment", {"actor": "Priya", "from_member": "Priya", "to_member": "Aarav",
+        Step("Priya", "I paid Rahul back ₹500.",
+             [("record_payment", {"actor": "Priya", "from_member": "Priya", "to_member": "Rahul",
                                   "amount_rupees": 500, "request_id": "{cid}-payback"})]),
-        Step("Sam", "Settle up. What's the fewest payments?", [("settle_up_plan", {})]),
-        Step("Sam", "How much did we spend this month?", [("monthly_summary", {"month": month})]),
+        Step("Neha", "Settle up. What's the fewest payments?", [("settle_up_plan", {})]),
+        Step("Neha", "How much did we spend this month?", [("monthly_summary", {"month": month})]),
     ]
 
 
@@ -80,7 +80,7 @@ class ScriptedAssistant:
                     calls.append(await call_tool(mcp, name, _scoped(arguments, conversation_id)))
         except Exception:  # MCP connection failures arrive as httpx errors or exception groups
             logger.exception("Scripted turn failed")
-            return TurnResult.failure("I can't reach HouseLedger right now. Is the MCP server running?", "scripted")
+            return TurnResult.failure("I can't reach FairShare right now. Is the MCP server running?", "scripted")
         return _as(step.speaker, TurnResult.from_calls(calls[-1].speech, "scripted", calls))
 
 

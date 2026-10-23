@@ -1,4 +1,4 @@
-"""Create the demo household (Aarav, Priya, Sam), optionally with a few weeks of SEEDED
+"""Create the demo household (Rahul, Priya, Neha), optionally with a few weeks of SEEDED
 (fictional) expenses.
 
 Usage:  uv run python -m houseledger.seed [--reset] [--empty] [--db PATH]
@@ -21,7 +21,7 @@ from .splits import ExclusiveItem, SplitSpec
 
 HOUSEHOLD_NAME = "Demo flat (seeded demo data)"
 EMPTY_HOUSEHOLD_NAME = "Demo flat"
-MEMBERS = ("Aarav", "Priya", "Sam")
+MEMBERS = ("Rahul", "Priya", "Neha")
 ALL = list(MEMBERS)
 
 
@@ -38,17 +38,17 @@ def seed(ledger: Ledger) -> None:
     create_household(ledger, HOUSEHOLD_NAME)
 
     expenses = [
-        ("seed-rent-oct", "Aarav", 45_000_00, "October rent", "rent", "2026-10-01", SplitSpec(participants=ALL)),
-        ("seed-wifi-oct", "Sam", 999_00, "Wi-Fi bill", "utilities", "2026-10-03", SplitSpec(participants=ALL)),
+        ("seed-rent-oct", "Rahul", 45_000_00, "October rent", "rent", "2026-10-01", SplitSpec(participants=ALL)),
+        ("seed-wifi-oct", "Neha", 999_00, "Wi-Fi bill", "utilities", "2026-10-03", SplitSpec(participants=ALL)),
         ("seed-groc-1", "Priya", 1_860_00, "Weekly groceries", "groceries", "2026-10-05",
          SplitSpec(participants=ALL)),
         ("seed-elec-oct", "Priya", 3_150_00, "Electricity bill", "utilities", "2026-10-08",
          SplitSpec(participants=ALL)),
-        ("seed-pizza", "Sam", 1_400_00, "Friday pizza night", "food", "2026-10-10",
+        ("seed-pizza", "Neha", 1_400_00, "Friday pizza night", "food", "2026-10-10",
          SplitSpec(participants=ALL, exclusive_items=[
-             ExclusiveItem(amount_paise=350_00, members=["Sam"], description="Sam's extra garlic bread"),
+             ExclusiveItem(amount_paise=350_00, members=["Neha"], description="Neha's extra garlic bread"),
          ])),
-        ("seed-groc-2", "Aarav", 2_240_00, "Weekly groceries", "groceries", "2026-10-12",
+        ("seed-groc-2", "Rahul", 2_240_00, "Weekly groceries", "groceries", "2026-10-12",
          SplitSpec(participants=ALL)),
         ("seed-cleaning", "Priya", 600_00, "Cleaning supplies", "household", "2026-10-15",
          SplitSpec(participants=ALL)),
@@ -57,8 +57,8 @@ def seed(ledger: Ledger) -> None:
         ledger.add_expense(actor=payer, payer=payer, total_paise=total, description=description,
                            split=split, category=category, date=date, request_id=request_id)
 
-    ledger.record_payment(actor="Sam", from_member="Sam", to_member="Aarav", amount_paise=10_000_00,
-                          date="2026-10-06", note="Part of October rent", request_id="seed-pay-sam-rent")
+    ledger.record_payment(actor="Neha", from_member="Neha", to_member="Rahul", amount_paise=10_000_00,
+                          date="2026-10-06", note="Part of October rent", request_id="seed-pay-neha-rent")
 
 
 def main() -> None:

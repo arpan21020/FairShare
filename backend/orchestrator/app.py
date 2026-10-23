@@ -2,7 +2,7 @@
 
 Run:  uv run python -m orchestrator.app        (http://127.0.0.1:8001)
 
-Needs the HouseLedger MCP server running (see houseledger.mcp_server). Live mode needs an
+Needs the FairShare MCP server running (see houseledger.mcp_server). Live mode needs an
 LLM key in .env; scripted mode works without one. If the simulator has been built
 (simulator/dist), it is served from the same address.
 """
@@ -28,7 +28,7 @@ settings = load_settings()
 live = LiveAssistant(settings) if settings.live_available else None
 scripted = ScriptedAssistant(settings)
 
-app = FastAPI(title="HouseLedger — simulated Alexa+ orchestrator")
+app = FastAPI(title="FairShare — simulated Alexa+ orchestrator")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -49,7 +49,7 @@ async def household() -> tuple[list[str], str, bool]:
     try:
         async with Client(settings.mcp_url) as mcp:
             call = await call_tool(mcp, "list_household_members", {})
-            # Something answered, but only a successful call means it is HouseLedger.
+            # Something answered, but only a successful call means it is FairShare.
             return call.data.get("members", []), call.data.get("household", ""), call.ok
     except Exception:
         return [], "", False

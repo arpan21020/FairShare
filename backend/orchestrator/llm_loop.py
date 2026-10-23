@@ -1,4 +1,4 @@
-"""Live mode: an LLM plays Alexa and calls HouseLedger's MCP tools.
+"""Live mode: an LLM plays Alexa and calls FairShare's MCP tools.
 
 Each turn opens an MCP session over Streamable HTTP, offers the server's tools to the LLM
 (any OpenAI-compatible endpoint, NVIDIA by default), runs the tool calls it asks for, and
@@ -26,7 +26,7 @@ MAX_HISTORY_MESSAGES = 40
 
 SYSTEM_PROMPT = """\
 You are Alexa on a kitchen Echo Show, helping a household keep track of shared expenses with \
-the HouseLedger tools.
+the FairShare tools.
 
 {server_instructions}
 
@@ -73,7 +73,7 @@ class LiveAssistant:
         except Exception:  # MCP connection failures arrive as httpx errors or exception groups
             logger.exception("Live turn failed")
             del history[history.index(user_message):]  # drop this turn so the history stays well-formed
-            return TurnResult.failure("I can't reach HouseLedger right now. Is the MCP server running?", "live")
+            return TurnResult.failure("I can't reach FairShare right now. Is the MCP server running?", "live")
         finally:
             self._trim(conversation_id)
 

@@ -1,4 +1,4 @@
-"""HouseLedger MCP server (Streamable HTTP).
+"""FairShare MCP server (Streamable HTTP).
 
 Run:   uv run python -m houseledger.mcp_server [--host 127.0.0.1] [--port 8010] [--db PATH] [--seed]
 URL:   http://127.0.0.1:8010/mcp     Health: http://127.0.0.1:8010/health
@@ -35,7 +35,7 @@ from .seed import create_household, seed
 from .splits import ExclusiveItem, SplitSpec
 
 INSTRUCTIONS = """\
-HouseLedger keeps a household's shared expenses. You are the household's voice assistant.
+FairShare keeps a household's shared expenses. You are the household's voice assistant.
 
 - `actor` is always the household member who is speaking. Ask who is speaking if you don't know.
 - Never calculate amounts, shares or balances yourself. Every number you say must come from a tool result.
@@ -46,11 +46,11 @@ HouseLedger keeps a household's shared expenses. You are the household's voice a
 - If the amount, the payer, who shares the cost, or how to split it is unclear, ask one short
   question instead of guessing.
 - Keep spoken replies to one to three sentences. Use the `speech` field of results as a guide.
-- HouseLedger never moves money. Settle-up plans are suggestions; record a payment only when
+- FairShare never moves money. Settle-up plans are suggestions; record a payment only when
   someone says it happened.
 """
 
-ACTOR = Field(description="The household member who is speaking, e.g. 'Aarav'.")
+ACTOR = Field(description="The household member who is speaking, e.g. 'Rahul'.")
 AMOUNT = Field(gt=0, description="Amount in rupees, e.g. 2400 or 99.50.")
 CATEGORY = Field(description=f"One of: {', '.join(CATEGORIES)}.")
 DATE = Field(description="Date as YYYY-MM-DD. Leave empty for today.")
@@ -75,7 +75,7 @@ class SplitInput(BaseModel):
         default="equal",
         description="equal: use `participants`. "
         "weights: relative shares; use this when someone should pay part of a share, e.g. "
-        "'Sam was away half the week' -> {'Aarav': 1, 'Priya': 1, 'Sam': 0.5}. "
+        "'Neha was away half the week' -> {'Rahul': 1, 'Priya': 1, 'Neha': 0.5}. "
         "percent: percentages the speaker stated, adding up to 100. "
         "exact: ONLY when the speaker states each person's rupee amount. Never work out amounts yourself.",
     )
@@ -87,7 +87,7 @@ class SplitInput(BaseModel):
     exact_rupees: dict[str, float] = Field(default_factory=dict, description="For 'exact': member -> rupees.")
     exclusive_items: list[ItemInput] = Field(
         default_factory=list,
-        description="Parts of the bill that belong only to some people, e.g. wine only Aarav drank.",
+        description="Parts of the bill that belong only to some people, e.g. wine only Rahul drank.",
     )
 
     def to_spec(self) -> SplitSpec:
@@ -107,8 +107,8 @@ class SplitInput(BaseModel):
 
 def build_server(ledger: Ledger) -> MCPServer:
     mcp = MCPServer(
-        name="houseledger",
-        title="HouseLedger",
+        name="fairshare",
+        title="FairShare",
         description="Shared household expenses, settled by voice.",
         instructions=INSTRUCTIONS,
         version="0.1.0",
@@ -259,7 +259,7 @@ def build_server(ledger: Ledger) -> MCPServer:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the HouseLedger MCP server over Streamable HTTP.")
+    parser = argparse.ArgumentParser(description="Run the FairShare MCP server over Streamable HTTP.")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8010)
     parser.add_argument("--db", type=Path, default=db_path_from_env())

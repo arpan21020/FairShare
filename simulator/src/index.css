@@ -138,6 +138,14 @@ code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-siz
 .mic.listening svg { fill: #001018; }
 .send { padding: 11px 20px; border-radius: 999px; border: 0; background: var(--accent-2); color: white; font-weight: 600; }
 .mic-error { margin-top: 6px; color: var(--owes); font-size: 0.85rem; }
+.listen-status { min-height: 1.2em; margin-top: 6px; font-size: 0.85rem; color: var(--accent); }
+
+/* Echo-style light ring while the mic is open. */
+.screen.listening {
+  box-shadow: 0 0 0 1px #2a2f37, 0 0 0 4px var(--accent), 0 0 40px rgba(34, 211, 238, 0.45),
+    0 30px 80px rgba(0, 0, 0, 0.6);
+  transition: box-shadow 0.2s ease;
+}
 
 .suggestions { width: 100%; margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
 .suggestions p { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }

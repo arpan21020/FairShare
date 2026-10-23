@@ -1,5 +1,5 @@
 // Screen cards for the Echo Show-style display. Each card renders a `display` hint returned by
-// a HouseLedger MCP tool. Cards only show numbers from the server; they never calculate money.
+// a FairShare MCP tool. Cards only show numbers from the server; they never calculate money.
 
 import type { ReactNode } from 'react'
 import type { Balance, Card, Expense, Money, Payment, Share, Transfer } from './types'

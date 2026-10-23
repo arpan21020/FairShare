@@ -1,4 +1,4 @@
-"""Calling HouseLedger's MCP tools and recording each call for the on-screen trace."""
+"""Calling FairShare's MCP tools and recording each call for the on-screen trace."""
 
 import re
 import time
